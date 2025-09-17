@@ -44,22 +44,51 @@
         font-size: 1.5rem;
       }
 
+      /* Navbar fixe ou sticky fawk page w z-index kbir */
       .navbar {
-        backdrop-filter: blur(10px);
-        background: rgba(255, 255, 255, 0.1) !important;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+          position: sticky; /* ou fixed ila bghiti tb9a fawk lpage daba */
+          top: 0;
+          z-index: 1000; /* katkhlli navbar w dropdown fawk contenu */
+          backdrop-filter: blur(10px);
+          background: rgba(255, 255, 255, 0.1) !important;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+          transition: all 0.3s ease;
       }
-
+      
+      /* Dropdown menu fawk contenu */
+      .navbar-nav .dropdown-menu {
+          z-index: 1050; /* yb9a fawk les cards w sections */
+          backdrop-filter: blur(15px);
+          background: rgba(255, 255, 255, 0.95);
+          border-radius: 15px;
+          box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+          transition: all 0.3s ease;
+      }
+      
+      /* Smooth hover effect li kaytl3 li lnav link */
       .navbar-nav .nav-link {
-        color: white !important;
-        font-weight: 500;
-        transition: all 0.3s ease;
+          color: white !important;
+          font-weight: 500;
+          transition: all 0.3s ease;
       }
-
-      .navbar-nav .nav-link:hover {
-        color: #fbbf24 !important;
-        transform: translateY(-2px);
+      
+      .navbar-nav .nav-link:hover,
+      .navbar-nav .dropdown-toggle:hover {
+          color: #fbbf24 !important;
+          transform: translateY(-2px);
       }
+      
+      /* Dropdown menu items hover */
+      .navbar-nav .dropdown-item {
+          transition: all 0.3s ease;
+      }
+      
+      .navbar-nav .dropdown-item:hover {
+          background: rgba(79, 70, 229, 0.1);
+          color: var(--primary-color) !important;
+          transform: translateX(5px);
+      }
+      
 
       .container-main {
         background: rgba(255, 255, 255, 0.95);
