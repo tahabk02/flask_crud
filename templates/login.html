@@ -1,0 +1,282 @@
+{% extends "base.html" %} {% block title %}Connexion - Task Manager{% endblock
+%} {% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6 col-lg-5">
+    <div class="card shadow-lg border-0">
+      <div class="card-header bg-gradient text-white text-center py-4">
+        <h3 class="mb-0">
+          <i class="fas fa-sign-in-alt me-2"></i>
+          Connexion
+        </h3>
+        <p class="mb-0 text-white-50">Accédez à votre espace personnel</p>
+      </div>
+
+      <div class="card-body p-5">
+        <form method="POST" id="loginForm" novalidate>
+          <div class="mb-4">
+            <label for="username" class="form-label fw-semibold">
+              <i class="fas fa-user me-2 text-primary"></i>
+              Nom d'utilisateur
+            </label>
+            <div class="input-group">
+              <span class="input-group-text bg-light border-end-0">
+                <i class="fas fa-user text-muted"></i>
+              </span>
+              <input
+                type="text"
+                class="form-control border-start-0"
+                id="username"
+                name="username"
+                value="{{ username or '' }}"
+                placeholder="Entrez votre nom d'utilisateur"
+                required
+                autocomplete="username"
+              />
+              <div class="invalid-feedback">
+                Veuillez entrer votre nom d'utilisateur.
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label for="password" class="form-label fw-semibold">
+              <i class="fas fa-lock me-2 text-primary"></i>
+              Mot de passe
+            </label>
+            <div class="input-group">
+              <span class="input-group-text bg-light border-end-0">
+                <i class="fas fa-lock text-muted"></i>
+              </span>
+              <input
+                type="password"
+                class="form-control border-start-0 border-end-0"
+                id="password"
+                name="password"
+                placeholder="Entrez votre mot de passe"
+                required
+                autocomplete="current-password"
+              />
+              <button
+                type="button"
+                class="btn btn-outline-secondary border-start-0"
+                id="togglePassword"
+              >
+                <i class="fas fa-eye"></i>
+              </button>
+              <div class="invalid-feedback">
+                Veuillez entrer votre mot de passe.
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                id="remember_me"
+                name="remember_me"
+              />
+              <label class="form-check-label" for="remember_me">
+                <i class="fas fa-heart text-danger me-1"></i>
+                Se souvenir de moi
+              </label>
+            </div>
+          </div>
+
+          <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary btn-lg" id="loginBtn">
+              <i class="fas fa-sign-in-alt me-2"></i>
+              Se connecter
+            </button>
+          </div>
+        </form>
+
+        <hr class="my-4" />
+
+        <div class="text-center">
+          <p class="mb-3 text-muted">Pas encore de compte ?</p>
+          <a href="{{ url_for('register') }}" class="btn btn-outline-primary">
+            <i class="fas fa-user-plus me-2"></i>
+            Créer un compte
+          </a>
+        </div>
+
+        <!-- Informations d'aide -->
+        <div class="mt-4 p-3 bg-light rounded">
+          <h6 class="text-primary mb-2">
+            <i class="fas fa-info-circle me-2"></i>
+            Besoin d'aide ?
+          </h6>
+          <small class="text-muted">
+            Si vous avez oublié vos identifiants ou rencontrez des problèmes de
+            connexion, contactez l'administrateur système.
+          </small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fonctionnalités rappel -->
+    <div class="card mt-4 border-0 shadow-sm">
+      <div class="card-body text-center">
+        <h6 class="text-primary mb-3">
+          <i class="fas fa-rocket me-2"></i>
+          Que pouvez-vous faire avec Task Manager ?
+        </h6>
+        <div class="row g-3">
+          <div class="col-4">
+            <div class="feature-highlight">
+              <i class="fas fa-tasks fa-2x text-success mb-2"></i>
+              <small class="d-block text-muted">Gérer vos tâches</small>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="feature-highlight">
+              <i class="fas fa-clock fa-2x text-warning mb-2"></i>
+              <small class="d-block text-muted">Timer Pomodoro</small>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="feature-highlight">
+              <i class="fas fa-chart-line fa-2x text-info mb-2"></i>
+              <small class="d-block text-muted">Suivre vos progrès</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block extra_css %}
+<style>
+  .card-header.bg-gradient {
+    background: linear-gradient(
+      135deg,
+      var(--primary-color),
+      var(--secondary-color)
+    ) !important;
+  }
+
+  .input-group-text {
+    border-radius: 15px 0 0 15px;
+  }
+
+  .form-control {
+    border-radius: 0 15px 15px 0;
+  }
+
+  .form-control.border-start-0.border-end-0 {
+    border-radius: 0;
+  }
+
+  .btn-outline-secondary {
+    border-radius: 0 15px 15px 0;
+  }
+
+  .form-control:focus {
+    box-shadow: 0 0 0 0.25rem rgba(79, 70, 229, 0.15);
+    border-color: var(--primary-color);
+  }
+
+  .input-group:focus-within .input-group-text {
+    border-color: var(--primary-color);
+    background-color: rgba(79, 70, 229, 0.1);
+  }
+
+  .feature-highlight {
+    padding: 1rem;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+  }
+
+  .feature-highlight:hover {
+    background: rgba(79, 70, 229, 0.1);
+    transform: translateY(-3px);
+  }
+
+  .card {
+    animation: fadeInUp 0.6s ease-out;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .btn:hover {
+    transform: translateY(-2px);
+  }
+
+  .was-validated .form-control:invalid ~ .invalid-feedback,
+  .was-validated .form-control:invalid ~ .btn ~ .invalid-feedback {
+    display: block;
+  }
+
+  @media (max-width: 768px) {
+    .card-body {
+      padding: 2rem !important;
+    }
+
+    h3 {
+      font-size: 1.5rem;
+    }
+
+    .btn-lg {
+      font-size: 1rem;
+      padding: 0.75rem 1rem;
+    }
+
+    .feature-highlight {
+      padding: 0.5rem;
+    }
+
+    .feature-highlight i {
+      font-size: 1.5rem;
+    }
+
+    .feature-highlight small {
+      font-size: 0.75rem;
+    }
+  }
+</style>
+{% endblock %} {% block extra_js %}
+<script>
+  // Toggle password visibility
+  const togglePassword = document.querySelector("#togglePassword");
+  const passwordInput = document.querySelector("#password");
+
+  togglePassword.addEventListener("click", function () {
+    const type =
+      passwordInput.getAttribute("type") === "password" ? "text" : "password";
+    passwordInput.setAttribute("type", type);
+    this.querySelector("i").classList.toggle("fa-eye");
+    this.querySelector("i").classList.toggle("fa-eye-slash");
+  });
+
+  // Client-side validation Bootstrap style
+  (function () {
+    "use strict";
+    const forms = document.querySelectorAll("#loginForm");
+
+    Array.from(forms).forEach(function (form) {
+      form.addEventListener(
+        "submit",
+        function (event) {
+          if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+          form.classList.add("was-validated");
+        },
+        false
+      );
+    });
+  })();
+</script>
+{% endblock %}

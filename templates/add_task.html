@@ -1,0 +1,424 @@
+{% extends "base.html" %} {% block title %}Nouvelle Tâche - Gestionnaire de
+Tâches{% endblock %} {% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8 col-lg-6">
+    <div class="card shadow">
+      <div class="card-header bg-success text-white">
+        <h4 class="mb-0"><i class="fas fa-plus me-2"></i>Nouvelle Tâche</h4>
+      </div>
+      <div class="card-body">
+        <form method="POST" id="taskForm">
+          <div class="mb-3">
+            <label for="title" class="form-label">Titre de la tâche *</label>
+            <input
+              type="text"
+              class="form-control"
+              id="title"
+              name="title"
+              required
+              placeholder="Entrez le titre de votre tâche"
+            />
+            <div class="invalid-feedback">
+              Veuillez entrer un titre pour la tâche.
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="description" class="form-label"
+              >Description (optionnelle)</label
+            >
+            <textarea
+              class="form-control"
+              id="description"
+              name="description"
+              rows="3"
+              placeholder="Décrivez votre tâche en détail (optionnel)"
+            ></textarea>
+          </div>
+
+          <div class="mb-3">
+            <label for="priority" class="form-label">Priorité *</label>
+            <select class="form-select" id="priority" name="priority" required>
+              <option value="">Sélectionner une priorité</option>
+              <option value="high">🔴 Élevée</option>
+              <option value="medium" selected>🟡 Moyenne</option>
+              <option value="low">🟢 Basse</option>
+            </select>
+            <div class="invalid-feedback">
+              Veuillez sélectionner une priorité.
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <div class="form-check form-switch">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                role="switch"
+                id="is_pomodoro"
+                name="is_pomodoro"
+                onchange="togglePomodoroSettings()"
+              />
+              <label class="form-check-label" for="is_pomodoro">
+                <i class="fas fa-clock me-2 text-danger"></i>
+                <strong>Activer le mode Pomodoro</strong>
+                <small class="text-muted d-block"
+                  >Utiliser la technique Pomodoro pour cette tâche</small
+                >
+              </label>
+            </div>
+          </div>
+
+          <div
+            id="pomodoro-settings"
+            class="border rounded p-3 bg-light"
+            style="display: none"
+          >
+            <h6 class="text-primary mb-3">
+              <i class="fas fa-cog me-2"></i>Paramètres Pomodoro
+            </h6>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="pomodoro_duration" class="form-label">
+                    <i class="fas fa-play-circle me-1 text-success"></i>
+                    Durée de travail (minutes)
+                  </label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="pomodoro_duration"
+                    name="pomodoro_duration"
+                    value="25"
+                    min="5"
+                    max="60"
+                    step="1"
+                  />
+                  <div class="form-text">Recommandé: 25 minutes</div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="break_duration" class="form-label">
+                    <i class="fas fa-pause-circle me-1 text-info"></i>
+                    Durée de pause (minutes)
+                  </label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="break_duration"
+                    name="break_duration"
+                    value="5"
+                    min="1"
+                    max="30"
+                    step="1"
+                  />
+                  <div class="form-text">Recommandé: 5 minutes</div>
+                </div>
+              </div>
+            </div>
+            <div class="alert alert-info d-flex align-items-center">
+              <i class="fas fa-info-circle me-2"></i>
+              <div>
+                <strong>Technique Pomodoro :</strong> Travaillez par blocs de
+                temps concentrés suivis de courtes pauses pour améliorer votre
+                productivité.
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between mt-4">
+            <a
+              href="{{ url_for('dashboard') }}"
+              class="btn btn-outline-secondary"
+            >
+              <i class="fas fa-arrow-left me-2"></i>Retour au tableau de bord
+            </a>
+            <div>
+              <button
+                type="reset"
+                class="btn btn-outline-warning me-2"
+                onclick="resetForm()"
+              >
+                <i class="fas fa-undo me-2"></i>Réinitialiser
+              </button>
+              <button type="submit" class="btn btn-success" id="submitBtn">
+                <i class="fas fa-plus me-2"></i>Créer la Tâche
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div
+  class="modal fade"
+  id="confirmModal"
+  tabindex="-1"
+  aria-labelledby="confirmModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmModalLabel">
+          <i class="fas fa-check-circle text-success me-2"></i>Confirmer la
+          création
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <p>Voulez-vous vraiment créer cette tâche ?</p>
+        <div id="taskPreview" class="border rounded p-2 bg-light">
+          <!-- Le contenu sera injecté par JavaScript -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Annuler
+        </button>
+        <button type="button" class="btn btn-success" onclick="submitForm()">
+          <i class="fas fa-check me-2"></i>Confirmer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block scripts %}
+<script>
+  // Variables globales
+  let formSubmitted = false;
+
+  // Fonction pour basculer les paramètres Pomodoro
+  function togglePomodoroSettings() {
+    const checkbox = document.getElementById("is_pomodoro");
+    const settings = document.getElementById("pomodoro-settings");
+
+    if (checkbox && settings) {
+      if (checkbox.checked) {
+        settings.style.display = "block";
+        // Animation d'apparition
+        settings.style.opacity = "0";
+        setTimeout(() => {
+          settings.style.opacity = "1";
+          settings.style.transition = "opacity 0.3s ease-in-out";
+        }, 10);
+      } else {
+        settings.style.display = "none";
+      }
+    }
+  }
+
+  // Fonction pour réinitialiser le formulaire
+  function resetForm() {
+    const form = document.getElementById("taskForm");
+    if (form) {
+      form.reset();
+      // Masquer les paramètres Pomodoro
+      const settings = document.getElementById("pomodoro-settings");
+      if (settings) {
+        settings.style.display = "none";
+      }
+      // Remettre la priorité par défaut
+      document.getElementById("priority").value = "medium";
+      // Supprimer les classes de validation
+      form.classList.remove("was-validated");
+    }
+  }
+
+  // Fonction pour valider le formulaire
+  function validateForm() {
+    const form = document.getElementById("taskForm");
+    const title = document.getElementById("title").value.trim();
+    const priority = document.getElementById("priority").value;
+
+    let isValid = true;
+
+    // Validation du titre
+    if (!title) {
+      document.getElementById("title").classList.add("is-invalid");
+      isValid = false;
+    } else {
+      document.getElementById("title").classList.remove("is-invalid");
+      document.getElementById("title").classList.add("is-valid");
+    }
+
+    // Validation de la priorité
+    if (!priority) {
+      document.getElementById("priority").classList.add("is-invalid");
+      isValid = false;
+    } else {
+      document.getElementById("priority").classList.remove("is-invalid");
+      document.getElementById("priority").classList.add("is-valid");
+    }
+
+    // Validation des paramètres Pomodoro si activés
+    const isPomodoroChecked = document.getElementById("is_pomodoro").checked;
+    if (isPomodoroChecked) {
+      const pomoDuration = parseInt(
+        document.getElementById("pomodoro_duration").value
+      );
+      const breakDuration = parseInt(
+        document.getElementById("break_duration").value
+      );
+
+      if (pomoDuration < 5 || pomoDuration > 60) {
+        document
+          .getElementById("pomodoro_duration")
+          .classList.add("is-invalid");
+        isValid = false;
+      } else {
+        document
+          .getElementById("pomodoro_duration")
+          .classList.remove("is-invalid");
+        document.getElementById("pomodoro_duration").classList.add("is-valid");
+      }
+
+      if (breakDuration < 1 || breakDuration > 30) {
+        document.getElementById("break_duration").classList.add("is-invalid");
+        isValid = false;
+      } else {
+        document
+          .getElementById("break_duration")
+          .classList.remove("is-invalid");
+        document.getElementById("break_duration").classList.add("is-valid");
+      }
+    }
+
+    return isValid;
+  }
+
+  // Fonction pour afficher l'aperçu de la tâche
+  function showTaskPreview() {
+    const title = document.getElementById("title").value.trim();
+    const description = document.getElementById("description").value.trim();
+    const priority = document.getElementById("priority").value;
+    const isPomodoro = document.getElementById("is_pomodoro").checked;
+
+    let priorityText = "";
+    let priorityClass = "";
+    switch (priority) {
+      case "high":
+        priorityText = "🔴 Élevée";
+        priorityClass = "text-danger";
+        break;
+      case "medium":
+        priorityText = "🟡 Moyenne";
+        priorityClass = "text-warning";
+        break;
+      case "low":
+        priorityText = "🟢 Basse";
+        priorityClass = "text-success";
+        break;
+    }
+
+    let previewHTML = `
+        <div class="mb-2">
+            <strong>Titre :</strong> ${title}
+        </div>
+        <div class="mb-2">
+            <strong>Priorité :</strong> <span class="${priorityClass}">${priorityText}</span>
+        </div>
+    `;
+
+    if (description) {
+      previewHTML += `
+            <div class="mb-2">
+                <strong>Description :</strong> ${description}
+            </div>
+        `;
+    }
+
+    if (isPomodoro) {
+      const pomoDuration = document.getElementById("pomodoro_duration").value;
+      const breakDuration = document.getElementById("break_duration").value;
+      previewHTML += `
+            <div class="mb-2">
+                <strong>Mode Pomodoro :</strong> 
+                <i class="fas fa-clock text-danger me-1"></i>
+                ${pomoDuration}min travail / ${breakDuration}min pause
+            </div>
+        `;
+    }
+
+    document.getElementById("taskPreview").innerHTML = previewHTML;
+  }
+
+  // Fonction pour soumettre le formulaire
+  function submitForm() {
+    const form = document.getElementById("taskForm");
+    const submitBtn = document.getElementById("submitBtn");
+
+    // Désactiver le bouton pour éviter les double-clics
+    submitBtn.disabled = true;
+    submitBtn.innerHTML =
+      '<i class="fas fa-spinner fa-spin me-2"></i>Création en cours...';
+
+    // Soumettre le formulaire
+    formSubmitted = true;
+    form.submit();
+  }
+
+  // Gestionnaire d'événements pour la soumission du formulaire
+  document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("taskForm");
+
+    if (form) {
+      form.addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        if (validateForm()) {
+          showTaskPreview();
+          // Afficher le modal de confirmation
+          const confirmModal = new bootstrap.Modal(
+            document.getElementById("confirmModal")
+          );
+          confirmModal.show();
+        } else {
+          // Afficher les erreurs de validation
+          form.classList.add("was-validated");
+        }
+      });
+    }
+
+    // Validation en temps réel
+    const titleInput = document.getElementById("title");
+    const prioritySelect = document.getElementById("priority");
+
+    if (titleInput) {
+      titleInput.addEventListener("blur", validateForm);
+      titleInput.addEventListener("input", function () {
+        if (this.value.trim()) {
+          this.classList.remove("is-invalid");
+          this.classList.add("is-valid");
+        }
+      });
+    }
+
+    if (prioritySelect) {
+      prioritySelect.addEventListener("change", validateForm);
+    }
+  });
+
+  // Prévenir la fermeture accidentelle de la page
+  window.addEventListener("beforeunload", function (event) {
+    const title = document.getElementById("title").value.trim();
+    const description = document.getElementById("description").value.trim();
+
+    if ((title || description) && !formSubmitted) {
+      event.preventDefault();
+      event.returnValue =
+        "Vous avez des modifications non sauvegardées. Voulez-vous vraiment quitter cette page ?";
+      return event.returnValue;
+    }
+  });
+</script>
+{% endblock %}

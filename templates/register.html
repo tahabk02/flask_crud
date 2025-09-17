@@ -1,0 +1,87 @@
+{% extends "base.html" %} {% block title %}Inscription - Gestionnaire de
+Tâches{% endblock %} {% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6 col-lg-4">
+    <div class="card shadow">
+      <div class="card-header bg-primary text-white text-center">
+        <h4 class="mb-0"><i class="fas fa-user-plus me-2"></i>Inscription</h4>
+      </div>
+      <div class="card-body">
+        <form method="POST" id="registerForm">
+          <div class="mb-3">
+            <label for="username" class="form-label">Nom d'utilisateur</label>
+            <input
+              type="text"
+              class="form-control"
+              id="username"
+              name="username"
+              required
+            />
+          </div>
+
+          <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input
+              type="email"
+              class="form-control"
+              id="email"
+              name="email"
+              required
+            />
+          </div>
+
+          <div class="mb-3">
+            <label for="password" class="form-label">Mot de passe</label>
+            <input
+              type="password"
+              class="form-control"
+              id="password"
+              name="password"
+              required
+            />
+          </div>
+
+          <div class="mb-3">
+            <label for="confirm_password" class="form-label"
+              >Confirmer le mot de passe</label
+            >
+            <input
+              type="password"
+              class="form-control"
+              id="confirm_password"
+              name="confirm_password"
+              required
+            />
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100">
+            <i class="fas fa-user-plus me-2"></i>S'inscrire
+          </button>
+        </form>
+      </div>
+      <div class="card-footer text-center">
+        <small class="text-muted">
+          Déjà un compte?
+          <a href="{{ url_for('login') }}" class="text-decoration-none"
+            >Se connecter</a
+          >
+        </small>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document
+    .getElementById("registerForm")
+    .addEventListener("submit", function (event) {
+      const password = document.getElementById("password").value;
+      const confirm = document.getElementById("confirm_password").value;
+
+      if (password !== confirm) {
+        event.preventDefault(); // bloque l'envoi du formulaire
+        alert("⚠️ Les mots de passe ne correspondent pas.");
+      }
+    });
+</script>
+{% endblock %}

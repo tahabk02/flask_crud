@@ -1,0 +1,435 @@
+{% extends "base.html" %} {% block title %}Tableau de Bord - Gestionnaire de
+Tâches{% endblock %} {% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h2 class="mb-1">
+      <i class="fas fa-tachometer-alt me-2 text-primary"></i>
+      Tableau de Bord
+    </h2>
+    <p class="text-muted mb-0">
+      Bonjour {{ current_user.username }} ! Vous avez {{ tasks|length }} tâche{{
+      's' if tasks|length != 1 else '' }}.
+    </p>
+  </div>
+  <a href="{{ url_for('add_task') }}" class="btn btn-success">
+    <i class="fas fa-plus me-2"></i>Nouvelle Tâche
+  </a>
+</div>
+
+<!-- Statistiques rapides -->
+{% set completed_tasks = tasks|selectattr('completed')|list %} {% set
+pending_tasks = tasks|rejectattr('completed')|list %} {% set high_priority_tasks
+= pending_tasks|selectattr('priority', 'equalto', 'high')|list %} {% set
+pomodoro_tasks = tasks|selectattr('is_pomodoro')|list %}
+
+<div class="row mb-4">
+  <div class="col-md-3 col-sm-6 mb-3">
+    <div class="card bg-primary text-white h-100">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h4 class="mb-1">{{ tasks|length }}</h4>
+            <p class="mb-0 small">Total des tâches</p>
+          </div>
+          <i class="fas fa-tasks fa-2x opacity-75"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3 col-sm-6 mb-3">
+    <div class="card bg-warning text-dark h-100">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h4 class="mb-1">{{ pending_tasks|length }}</h4>
+            <p class="mb-0 small">En attente</p>
+          </div>
+          <i class="fas fa-clock fa-2x opacity-75"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3 col-sm-6 mb-3">
+    <div class="card bg-success text-white h-100">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h4 class="mb-1">{{ completed_tasks|length }}</h4>
+            <p class="mb-0 small">Terminées</p>
+          </div>
+          <i class="fas fa-check-circle fa-2x opacity-75"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3 col-sm-6 mb-3">
+    <div class="card bg-danger text-white h-100">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h4 class="mb-1">{{ high_priority_tasks|length }}</h4>
+            <p class="mb-0 small">Priorité élevée</p>
+          </div>
+          <i class="fas fa-exclamation-triangle fa-2x opacity-75"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Filtres -->
+<div class="card mb-4">
+  <div class="card-body">
+    <div class="row align-items-center">
+      <div class="col-md-6">
+        <h6 class="mb-0">
+          <i class="fas fa-filter me-2"></i>Filtrer les tâches
+        </h6>
+      </div>
+      <div class="col-md-6">
+        <div class="d-flex gap-2 flex-wrap">
+          <button
+            class="btn btn-outline-primary btn-sm"
+            onclick="filterTasks('all')"
+            id="filter-all"
+          >
+            Toutes
+          </button>
+          <button
+            class="btn btn-outline-warning btn-sm"
+            onclick="filterTasks('pending')"
+            id="filter-pending"
+          >
+            En attente
+          </button>
+          <button
+            class="btn btn-outline-success btn-sm"
+            onclick="filterTasks('completed')"
+            id="filter-completed"
+          >
+            Terminées
+          </button>
+          <button
+            class="btn btn-outline-danger btn-sm"
+            onclick="filterTasks('high')"
+            id="filter-high"
+          >
+            Priorité élevée
+          </button>
+          <button
+            class="btn btn-outline-info btn-sm"
+            onclick="filterTasks('pomodoro')"
+            id="filter-pomodoro"
+          >
+            Pomodoro
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Liste des tâches -->
+{% if tasks %}
+<div class="row" id="tasks-container">
+  {% for task in tasks %}
+  <div
+    class="col-lg-6 mb-3 task-item"
+    data-status="{{ 'completed' if task.completed else 'pending' }}"
+    data-priority="{{ task.priority }}"
+    data-pomodoro="{{ 'true' if task.is_pomodoro else 'false' }}"
+  >
+    <div
+      class="card task-card priority-{{ task.priority }} {{ 'completed' if task.completed else '' }}"
+    >
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <h6
+            class="card-title mb-0 {{ 'text-decoration-line-through' if task.completed else '' }}"
+          >
+            {{ task.title }}
+          </h6>
+          <div class="d-flex gap-1">
+            {% if task.priority == 'high' %}
+            <span class="badge bg-danger">🔴 Élevée</span>
+            {% elif task.priority == 'medium' %}
+            <span class="badge bg-warning text-dark">🟡 Moyenne</span>
+            {% else %}
+            <span class="badge bg-success">🟢 Basse</span>
+            {% endif %} {% if task.is_pomodoro %}
+            <span class="badge bg-info">
+              <i class="fas fa-clock"></i> Pomodoro
+            </span>
+            {% endif %}
+          </div>
+        </div>
+
+        {% if task.description %}
+        <p class="card-text text-muted small mb-2">
+          {{ task.description[:100] }}{% if task.description|length > 100
+          %}...{% endif %}
+        </p>
+        {% endif %} {% if task.is_pomodoro and task.pomodoro_sessions > 0 %}
+        <div class="mb-2">
+          <small class="text-success">
+            <i class="fas fa-trophy me-1"></i>
+            {{ task.pomodoro_sessions }} session{{ 's' if task.pomodoro_sessions
+            > 1 else '' }} complétée{{ 's' if task.pomodoro_sessions > 1 else ''
+            }}
+          </small>
+        </div>
+        {% endif %}
+
+        <div class="d-flex justify-content-between align-items-center">
+          <small class="text-muted">
+            <i class="fas fa-calendar me-1"></i>
+            {{ task.created_at.strftime('%d/%m/%Y') }} {% if task.updated_at !=
+            task.created_at %}
+            <br /><i class="fas fa-edit me-1"></i>
+            Modifiée le {{ task.updated_at.strftime('%d/%m/%Y') }} {% endif %}
+          </small>
+
+          <div class="btn-group" role="group">
+            <!-- Bouton de statut -->
+            <button
+              type="button"
+              class="btn {{ 'btn-success' if task.completed else 'btn-outline-success' }} btn-sm"
+              onclick="toggleTask({{ task.id }})"
+              title="{{ 'Marquer comme non terminée' if task.completed else 'Marquer comme terminée' }}"
+            >
+              <i
+                class="fas {{ 'fa-undo' if task.completed else 'fa-check' }}"
+              ></i>
+            </button>
+
+            <!-- Bouton Pomodoro -->
+            {% if task.is_pomodoro and not task.completed %}
+            <a
+              href="{{ url_for('pomodoro_timer', task_id=task.id) }}"
+              class="btn btn-info btn-sm"
+              title="Démarrer Pomodoro"
+            >
+              <i class="fas fa-play"></i>
+            </a>
+            {% endif %}
+
+            <!-- Bouton d'édition -->
+            <a
+              href="{{ url_for('edit_task', task_id=task.id) }}"
+              class="btn btn-warning btn-sm"
+              title="Modifier"
+            >
+              <i class="fas fa-edit"></i>
+            </a>
+
+            <!-- Bouton de suppression -->
+            <button
+              type="button"
+              class="btn btn-danger btn-sm"
+              onclick="confirmDelete({{ task.id }}, '{{ task.title }}')"
+              title="Supprimer"
+            >
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-5">
+  <div class="mb-4">
+    <i class="fas fa-tasks fa-4x text-muted"></i>
+  </div>
+  <h4 class="text-muted mb-3">Aucune tâche pour le moment</h4>
+  <p class="text-muted mb-4">
+    Commencez par créer votre première tâche pour organiser votre travail.
+  </p>
+  <a href="{{ url_for('add_task') }}" class="btn btn-success btn-lg">
+    <i class="fas fa-plus me-2"></i>Créer ma première tâche
+  </a>
+</div>
+{% endif %}
+
+<!-- Modal de confirmation de suppression -->
+<div
+  class="modal fade"
+  id="deleteModal"
+  tabindex="-1"
+  aria-labelledby="deleteModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="deleteModalLabel">
+          <i class="fas fa-exclamation-triangle me-2"></i>Confirmer la
+          suppression
+        </h5>
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <p>Êtes-vous sûr de vouloir supprimer la tâche :</p>
+        <div class="alert alert-light border">
+          <strong id="taskToDelete"></strong>
+        </div>
+        <div class="alert alert-warning">
+          <i class="fas fa-info-circle me-2"></i>
+          Cette action est irréversible.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Annuler
+        </button>
+        <a href="#" id="deleteLink" class="btn btn-danger">
+          <i class="fas fa-trash me-2"></i>Supprimer définitivement
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block scripts %}
+<script>
+  let currentFilter = "all";
+
+  // Fonction pour basculer le statut d'une tâche
+  function toggleTask(taskId) {
+    fetch(`/toggle_task/${taskId}`, {
+      method: "POST",
+      headers: {
+        "X-Requested-With": "XMLHttpRequest",
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Erreur réseau");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        // Recharger la page pour mettre à jour l'affichage
+        location.reload();
+      })
+      .catch((error) => {
+        console.error("Erreur:", error);
+        alert("Erreur lors de la mise à jour de la tâche");
+      });
+  }
+
+  // Fonction pour filtrer les tâches
+  function filterTasks(filter) {
+    currentFilter = filter;
+    const tasks = document.querySelectorAll(".task-item");
+
+    // Mettre à jour les boutons
+    document.querySelectorAll('[id^="filter-"]').forEach((btn) => {
+      btn.classList.remove(
+        "btn-primary",
+        "btn-outline-primary",
+        "btn-warning",
+        "btn-outline-warning",
+        "btn-success",
+        "btn-outline-success",
+        "btn-danger",
+        "btn-outline-danger",
+        "btn-info",
+        "btn-outline-info"
+      );
+    });
+
+    const activeBtn = document.getElementById(`filter-${filter}`);
+
+    tasks.forEach((task) => {
+      let show = false;
+
+      switch (filter) {
+        case "all":
+          show = true;
+          activeBtn.classList.add("btn-primary");
+          break;
+        case "pending":
+          show = task.dataset.status === "pending";
+          activeBtn.classList.add("btn-warning");
+          break;
+        case "completed":
+          show = task.dataset.status === "completed";
+          activeBtn.classList.add("btn-success");
+          break;
+        case "high":
+          show =
+            task.dataset.priority === "high" &&
+            task.dataset.status === "pending";
+          activeBtn.classList.add("btn-danger");
+          break;
+        case "pomodoro":
+          show = task.dataset.pomodoro === "true";
+          activeBtn.classList.add("btn-info");
+          break;
+      }
+
+      task.style.display = show ? "block" : "none";
+    });
+
+    // Mettre les autres boutons en outline
+    document.querySelectorAll('[id^="filter-"]').forEach((btn) => {
+      if (btn.id !== `filter-${filter}`) {
+        if (btn.classList.contains("btn-primary"))
+          btn.className = btn.className.replace(
+            "btn-primary",
+            "btn-outline-primary"
+          );
+        if (btn.classList.contains("btn-warning"))
+          btn.className = btn.className.replace(
+            "btn-warning",
+            "btn-outline-warning"
+          );
+        if (btn.classList.contains("btn-success"))
+          btn.className = btn.className.replace(
+            "btn-success",
+            "btn-outline-success"
+          );
+        if (btn.classList.contains("btn-danger"))
+          btn.className = btn.className.replace(
+            "btn-danger",
+            "btn-outline-danger"
+          );
+        if (btn.classList.contains("btn-info"))
+          btn.className = btn.className.replace("btn-info", "btn-outline-info");
+      }
+    });
+  }
+
+  // Fonction pour confirmer la suppression
+  function confirmDelete(taskId, taskTitle) {
+    document.getElementById("taskToDelete").textContent = taskTitle;
+    document.getElementById("deleteLink").href = `/delete_task/${taskId}`;
+
+    const deleteModal = new bootstrap.Modal(
+      document.getElementById("deleteModal")
+    );
+    deleteModal.show();
+  }
+
+  // Initialisation
+  document.addEventListener("DOMContentLoaded", function () {
+    // Activer le filtre "Toutes" par défaut
+    filterTasks("all");
+
+    // Animation des cartes
+    const cards = document.querySelectorAll(".task-card");
+    cards.forEach((card, index) => {
+      card.style.animationDelay = `${index * 0.1}s`;
+      card.classList.add("animate__animated", "animate__fadeInUp");
+    });
+  });
+</script>
+{% endblock %}

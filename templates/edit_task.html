@@ -1,0 +1,301 @@
+{% extends "base.html" %}
+
+{% block title %}Modifier la Tâche - Gestionnaire de Tâches{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow">
+            <div class="card-header bg-warning text-dark">
+                <h4 class="mb-0">
+                    <i class="fas fa-edit me-2"></i>Modifier la Tâche
+                </h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" id="editTaskForm">
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Titre de la tâche *</label>
+                        <input type="text" class="form-control" id="title" name="title" 
+                               value="{{ task.title }}" required 
+                               placeholder="Entrez le titre de votre tâche">
+                        <div class="invalid-feedback">
+                            Veuillez entrer un titre pour la tâche.
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description (optionnelle)</label>
+                        <textarea class="form-control" id="description" name="description" rows="3"
+                                  placeholder="Décrivez votre tâche en détail (optionnel)">{{ task.description or '' }}</textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="priority" class="form-label">Priorité *</label>
+                        <select class="form-select" id="priority" name="priority" required>
+                            <option value="high" {{ 'selected' if task.priority == 'high' else '' }}>
+                                🔴 Élevée
+                            </option>
+                            <option value="medium" {{ 'selected' if task.priority == 'medium' else '' }}>
+                                🟡 Moyenne
+                            </option>
+                            <option value="low" {{ 'selected' if task.priority == 'low' else '' }}>
+                                🟢 Basse
+                            </option>
+                        </select>
+                        <div class="invalid-feedback">
+                            Veuillez sélectionner une priorité.
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" 
+                                   id="is_pomodoro" name="is_pomodoro" 
+                                   {{ 'checked' if task.is_pomodoro else '' }}
+                                   onchange="togglePomodoroSettings()">
+                            <label class="form-check-label" for="is_pomodoro">
+                                <i class="fas fa-clock me-2 text-danger"></i>
+                                <strong>Activer le mode Pomodoro</strong>
+                                <small class="text-muted d-block">Utiliser la technique Pomodoro pour cette tâche</small>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div id="pomodoro-settings" class="border rounded p-3 bg-light" 
+                         style="display: {{ 'block' if task.is_pomodoro else 'none' }};">
+                        <h6 class="text-primary mb-3">
+                            <i class="fas fa-cog me-2"></i>Paramètres Pomodoro
+                        </h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="pomodoro_duration" class="form-label">
+                                        <i class="fas fa-play-circle me-1 text-success"></i>
+                                        Durée de travail (minutes)
+                                    </label>
+                                    <input type="number" class="form-control" id="pomodoro_duration" 
+                                           name="pomodoro_duration" value="{{ task.pomodoro_duration }}" 
+                                           min="5" max="60" step="1">
+                                    <div class="form-text">Recommandé: 25 minutes</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="break_duration" class="form-label">
+                                        <i class="fas fa-pause-circle me-1 text-info"></i>
+                                        Durée de pause (minutes)
+                                    </label>
+                                    <input type="number" class="form-control" id="break_duration" 
+                                           name="break_duration" value="{{ task.break_duration }}" 
+                                           min="1" max="30" step="1">
+                                    <div class="form-text">Recommandé: 5 minutes</div>
+                                </div>
+                            </div>
+                        </div>
+                        {% if task.pomodoro_sessions > 0 %}
+                        <div class="alert alert-success d-flex align-items-center">
+                            <i class="fas fa-trophy me-2"></i>
+                            <div>
+                                <strong>Sessions complétées :</strong> {{ task.pomodoro_sessions }}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Retour au tableau de bord
+                        </a>
+                        <div>
+                            <button type="button" class="btn btn-outline-danger me-2" 
+                                    onclick="confirmDelete({{ task.id }})">
+                                <i class="fas fa-trash me-2"></i>Supprimer
+                            </button>
+                            <button type="submit" class="btn btn-warning" id="submitBtn">
+                                <i class="fas fa-save me-2"></i>Sauvegarder
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmation de suppression -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteModalLabel">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Confirmer la suppression
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Êtes-vous sûr de vouloir supprimer cette tâche ?</p>
+                <div class="alert alert-warning">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Cette action est irréversible.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <a href="#" id="deleteLink" class="btn btn-danger">
+                    <i class="fas fa-trash me-2"></i>Supprimer définitivement
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let formSubmitted = false;
+
+// Fonction pour basculer les paramètres Pomodoro
+function togglePomodoroSettings() {
+    const checkbox = document.getElementById('is_pomodoro');
+    const settings = document.getElementById('pomodoro-settings');
+    
+    if (checkbox && settings) {
+        if (checkbox.checked) {
+            settings.style.display = 'block';
+            settings.style.opacity = '0';
+            setTimeout(() => {
+                settings.style.opacity = '1';
+                settings.style.transition = 'opacity 0.3s ease-in-out';
+            }, 10);
+        } else {
+            settings.style.display = 'none';
+        }
+    }
+}
+
+// Fonction pour valider le formulaire
+function validateForm() {
+    const form = document.getElementById('editTaskForm');
+    const title = document.getElementById('title').value.trim();
+    const priority = document.getElementById('priority').value;
+    
+    let isValid = true;
+    
+    if (!title) {
+        document.getElementById('title').classList.add('is-invalid');
+        isValid = false;
+    } else {
+        document.getElementById('title').classList.remove('is-invalid');
+        document.getElementById('title').classList.add('is-valid');
+    }
+    
+    if (!priority) {
+        document.getElementById('priority').classList.add('is-invalid');
+        isValid = false;
+    } else {
+        document.getElementById('priority').classList.remove('is-invalid');
+        document.getElementById('priority').classList.add('is-valid');
+    }
+    
+    const isPomodoroChecked = document.getElementById('is_pomodoro').checked;
+    if (isPomodoroChecked) {
+        const pomoDuration = parseInt(document.getElementById('pomodoro_duration').value);
+        const breakDuration = parseInt(document.getElementById('break_duration').value);
+        
+        if (pomoDuration < 5 || pomoDuration > 60) {
+            document.getElementById('pomodoro_duration').classList.add('is-invalid');
+            isValid = false;
+        } else {
+            document.getElementById('pomodoro_duration').classList.remove('is-invalid');
+            document.getElementById('pomodoro_duration').classList.add('is-valid');
+        }
+        
+        if (breakDuration < 1 || breakDuration > 30) {
+            document.getElementById('break_duration').classList.add('is-invalid');
+            isValid = false;
+        } else {
+            document.getElementById('break_duration').classList.remove('is-invalid');
+            document.getElementById('break_duration').classList.add('is-valid');
+        }
+    }
+    
+    return isValid;
+}
+
+// Fonction pour confirmer la suppression
+function confirmDelete(taskId) {
+    const deleteLink = document.getElementById('deleteLink');
+    deleteLink.href = "{{ url_for('delete_task', task_id=0) }}".replace('0', taskId);
+    
+    const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    deleteModal.show();
+}
+
+// Gestionnaire d'événements
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('editTaskForm');
+    
+    if (form) {
+        form.addEventListener('submit', function(event) {
+            if (!validateForm()) {
+                event.preventDefault();
+                form.classList.add('was-validated');
+                return false;
+            }
+            
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Sauvegarde en cours...';
+            formSubmitted = true;
+        });
+    }
+    
+    // Validation en temps réel
+    const titleInput = document.getElementById('title');
+    const prioritySelect = document.getElementById('priority');
+    
+    if (titleInput) {
+        titleInput.addEventListener('blur', validateForm);
+        titleInput.addEventListener('input', function() {
+            if (this.value.trim()) {
+                this.classList.remove('is-invalid');
+                this.classList.add('is-valid');
+            }
+        });
+    }
+    
+    if (prioritySelect) {
+        prioritySelect.addEventListener('change', validateForm);
+    }
+});
+
+// Prévenir la fermeture accidentelle de la page
+window.addEventListener('beforeunload', function(event) {
+    if (!formSubmitted) {
+        // Vérifier si le formulaire a été modifié
+        const form = document.getElementById('editTaskForm');
+        const formData = new FormData(form);
+        
+        // Données originales (vous pouvez les stocker dans des data-attributes)
+        const originalTitle = "{{ task.title }}";
+        const originalDescription = "{{ task.description or '' }}";
+        const originalPriority = "{{ task.priority }}";
+        const originalIsPomodoro = {{ 'true' if task.is_pomodoro else 'false' }};
+        
+        // Vérifier les changements
+        const hasChanges = (
+            formData.get('title').trim() !== originalTitle ||
+            formData.get('description').trim() !== originalDescription ||
+            formData.get('priority') !== originalPriority ||
+            ('is_pomodoro' in Object.fromEntries(formData)) !== originalIsPomodoro
+        );
+        
+        if (hasChanges) {
+            event.preventDefault();
+            event.returnValue = 'Vous avez des modifications non sauvegardées. Voulez-vous vraiment quitter cette page ?';
+            return event.returnValue;
+        }
+    }
+});
+</script>
+{% endblock %}

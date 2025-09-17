@@ -1,0 +1,467 @@
+{% extends "base.html" %} {% block title %}Accueil - Task Manager{% endblock %}
+{% block content %}
+<div class="row align-items-center min-vh-75">
+  <div class="col-lg-6">
+    <div class="hero-content">
+      <h1 class="display-4 fw-bold text-primary mb-4">
+        <i class="fas fa-tasks text-gradient"></i>
+        Task Manager
+      </h1>
+      <p class="lead mb-4">
+        Organisez vos tâches efficacement avec la technique Pomodoro intégrée.
+        Boostez votre productivité et atteignez vos objectifs !
+      </p>
+
+      <div class="features mb-5">
+        <div class="row g-4">
+          <div class="col-md-6">
+            <div class="feature-item">
+              <div class="feature-icon text-primary mb-2">
+                <i class="fas fa-check-circle fa-2x"></i>
+              </div>
+              <h5>Gestion des tâches</h5>
+              <p class="text-muted">
+                Créez, organisez et suivez vos tâches avec des priorités et
+                dates d'échéance.
+              </p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="feature-item">
+              <div class="feature-icon text-success mb-2">
+                <i class="fas fa-clock fa-2x"></i>
+              </div>
+              <h5>Timer Pomodoro</h5>
+              <p class="text-muted">
+                Technique Pomodoro intégrée pour améliorer votre concentration
+                et productivité.
+              </p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="feature-item">
+              <div class="feature-icon text-warning mb-2">
+                <i class="fas fa-chart-bar fa-2x"></i>
+              </div>
+              <h5>Statistiques</h5>
+              <p class="text-muted">
+                Suivez vos progrès avec des statistiques détaillées et des
+                graphiques.
+              </p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="feature-item">
+              <div class="feature-icon text-info mb-2">
+                <i class="fas fa-mobile-alt fa-2x"></i>
+              </div>
+              <h5>Interface responsive</h5>
+              <p class="text-muted">
+                Accédez à vos tâches depuis n'importe quel appareil, partout et
+                à tout moment.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cta-buttons">
+        <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg me-3">
+          <i class="fas fa-user-plus me-2"></i>
+          Commencer gratuitement
+        </a>
+        <a href="{{ url_for('login') }}" class="btn btn-outline-primary btn-lg">
+          <i class="fas fa-sign-in-alt me-2"></i>
+          Se connecter
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-6">
+    <div class="hero-visual">
+      <div class="dashboard-preview">
+        <div class="card shadow-lg">
+          <div class="card-header bg-primary text-white">
+            <h6 class="mb-0">
+              <i class="fas fa-tachometer-alt me-2"></i>
+              Aperçu du tableau de bord
+            </h6>
+          </div>
+          <div class="card-body">
+            <!-- Statistiques factices -->
+            <div class="row mb-4">
+              <div class="col-3">
+                <div class="text-center">
+                  <div class="stats-number text-primary">24</div>
+                  <small class="text-muted">Tâches</small>
+                </div>
+              </div>
+              <div class="col-3">
+                <div class="text-center">
+                  <div class="stats-number text-success">18</div>
+                  <small class="text-muted">Complétées</small>
+                </div>
+              </div>
+              <div class="col-3">
+                <div class="text-center">
+                  <div class="stats-number text-warning">6</div>
+                  <small class="text-muted">En cours</small>
+                </div>
+              </div>
+              <div class="col-3">
+                <div class="text-center">
+                  <div class="stats-number text-info">42</div>
+                  <small class="text-muted">Pomodoros</small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tâches d'exemple -->
+            <div class="task-preview mb-3">
+              <div class="d-flex align-items-center">
+                <div class="task-priority priority-high me-3"></div>
+                <div class="flex-grow-1">
+                  <h6 class="mb-1">Finaliser le rapport mensuel</h6>
+                  <small class="text-muted">
+                    <i class="fas fa-calendar me-1"></i>
+                    Échéance: Aujourd'hui
+                  </small>
+                </div>
+                <div class="badge bg-danger">Élevée</div>
+              </div>
+            </div>
+
+            <div class="task-preview mb-3">
+              <div class="d-flex align-items-center">
+                <div class="task-priority priority-medium me-3"></div>
+                <div class="flex-grow-1">
+                  <h6 class="mb-1">Préparer présentation client</h6>
+                  <small class="text-muted">
+                    <i class="fas fa-clock me-1"></i>
+                    Timer Pomodoro: 3/4 sessions
+                  </small>
+                  <div class="progress mt-2" style="height: 4px">
+                    <div
+                      class="progress-bar bg-primary"
+                      style="width: 75%"
+                    ></div>
+                  </div>
+                </div>
+                <div class="badge bg-warning">Moyenne</div>
+              </div>
+            </div>
+
+            <div class="task-preview opacity-50">
+              <div class="d-flex align-items-center">
+                <div class="task-priority priority-low me-3"></div>
+                <div class="flex-grow-1">
+                  <h6 class="mb-1"><del>Organiser bureau</del></h6>
+                  <small class="text-success">
+                    <i class="fas fa-check-circle me-1"></i>
+                    Complété aujourd'hui
+                  </small>
+                </div>
+                <div class="badge bg-success">Basse</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Timer Pomodoro d'exemple -->
+        <div class="card shadow-lg mt-4">
+          <div class="card-body text-center pomodoro-demo">
+            <h6 class="text-white mb-3">
+              <i class="fas fa-stopwatch me-2"></i>
+              Timer Pomodoro
+            </h6>
+            <div class="timer-display-demo mb-3">25:00</div>
+            <div class="pomodoro-controls">
+              <button class="btn btn-light btn-sm me-2">
+                <i class="fas fa-play"></i>
+              </button>
+              <button class="btn btn-outline-light btn-sm me-2">
+                <i class="fas fa-pause"></i>
+              </button>
+              <button class="btn btn-outline-light btn-sm">
+                <i class="fas fa-stop"></i>
+              </button>
+            </div>
+            <small class="text-white-50 d-block mt-2"
+              >Session 1/4 - Travail</small
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Section avantages -->
+<div class="row mt-5">
+  <div class="col-12">
+    <div class="text-center mb-5">
+      <h2 class="h3 text-primary mb-3">Pourquoi choisir Task Manager ?</h2>
+      <p class="text-muted">
+        Découvrez tous les avantages de notre gestionnaire de tâches
+      </p>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4 mb-5">
+  <div class="col-lg-4">
+    <div class="advantage-card text-center h-100">
+      <div class="advantage-icon text-primary mb-3">
+        <i class="fas fa-bolt fa-3x"></i>
+      </div>
+      <h5>Rapide et efficace</h5>
+      <p class="text-muted">
+        Interface intuitive et réactive pour une gestion optimale de vos tâches
+        quotidiennes.
+      </p>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="advantage-card text-center h-100">
+      <div class="advantage-icon text-success mb-3">
+        <i class="fas fa-shield-alt fa-3x"></i>
+      </div>
+      <h5>Sécurisé</h5>
+      <p class="text-muted">
+        Vos données sont protégées avec des mesures de sécurité avancées et un
+        chiffrement robuste.
+      </p>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="advantage-card text-center h-100">
+      <div class="advantage-icon text-warning mb-3">
+        <i class="fas fa-users fa-3x"></i>
+      </div>
+      <h5>Collaboration</h5>
+      <p class="text-muted">
+        Partagez et collaborez sur vos projets avec votre équipe en toute
+        simplicité.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- Call to action final -->
+<div class="row">
+  <div class="col-12">
+    <div class="final-cta text-center p-5 bg-primary text-white rounded">
+      <h3 class="mb-3">Prêt à améliorer votre productivité ?</h3>
+      <p class="mb-4">
+        Rejoignez des milliers d'utilisateurs qui ont déjà transformé leur façon
+        de travailler.
+      </p>
+      <a href="{{ url_for('register') }}" class="btn btn-light btn-lg">
+        <i class="fas fa-rocket me-2"></i>
+        Créer mon compte gratuitement
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block extra_css %}
+<style>
+  .min-vh-75 {
+    min-height: 75vh;
+  }
+
+  .hero-content {
+    animation: fadeInLeft 1s ease-out;
+  }
+
+  .hero-visual {
+    animation: fadeInRight 1s ease-out;
+  }
+
+  @keyframes fadeInLeft {
+    from {
+      opacity: 0;
+      transform: translateX(-50px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes fadeInRight {
+    from {
+      opacity: 0;
+      transform: translateX(50px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .feature-item {
+    text-align: center;
+    padding: 1.5rem;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+  }
+
+  .feature-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.8);
+  }
+
+  .dashboard-preview {
+    position: relative;
+    transform: perspective(1000px) rotateY(-5deg);
+    transition: all 0.3s ease;
+  }
+
+  .dashboard-preview:hover {
+    transform: perspective(1000px) rotateY(0deg);
+  }
+
+  .stats-number {
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+
+  .task-preview {
+    padding: 0.75rem;
+    border-radius: 10px;
+    background: rgba(248, 249, 250, 0.8);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+  }
+
+  .task-priority {
+    width: 4px;
+    height: 40px;
+    border-radius: 2px;
+  }
+
+  .priority-high {
+    background: var(--danger-color);
+  }
+
+  .priority-medium {
+    background: var(--warning-color);
+  }
+
+  .priority-low {
+    background: var(--success-color);
+  }
+
+  .pomodoro-demo {
+    background: linear-gradient(135deg, #ff6b6b, #ffa500);
+    border-radius: 15px;
+    color: white;
+  }
+
+  .timer-display-demo {
+    font-size: 2rem;
+    font-weight: 700;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  .advantage-card {
+    padding: 2rem;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+  }
+
+  .advantage-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.9);
+  }
+
+  .final-cta {
+    background: linear-gradient(
+      135deg,
+      var(--primary-color),
+      var(--secondary-color)
+    ) !important;
+    box-shadow: 0 8px 32px rgba(79, 70, 229, 0.3);
+  }
+
+  @media (max-width: 768px) {
+    .hero-content {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .dashboard-preview {
+      transform: none;
+    }
+
+    .timer-display-demo {
+      font-size: 1.5rem;
+    }
+
+    .advantage-card {
+      padding: 1.5rem;
+    }
+  }
+</style>
+{% endblock %} {% block extra_js %}
+<script>
+  $(document).ready(function () {
+    // Animation des éléments au scroll
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: "0px 0px -100px 0px",
+    };
+
+    const observer = new IntersectionObserver(function (entries) {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("animate__animated", "animate__fadeInUp");
+        }
+      });
+    }, observerOptions);
+
+    document
+      .querySelectorAll(".advantage-card, .task-preview")
+      .forEach((el) => {
+        observer.observe(el);
+      });
+
+    // Animation du timer demo
+    let timerDemo = setInterval(function () {
+      const timerDisplay = $(".timer-display-demo");
+      const currentTime = timerDisplay.text().split(":");
+      let minutes = parseInt(currentTime[0]);
+      let seconds = parseInt(currentTime[1]);
+
+      if (seconds > 0) {
+        seconds--;
+      } else if (minutes > 0) {
+        minutes--;
+        seconds = 59;
+      } else {
+        minutes = 24;
+        seconds = 59;
+      }
+
+      timerDisplay.text(
+        (minutes < 10 ? "0" : "") +
+          minutes +
+          ":" +
+          (seconds < 10 ? "0" : "") +
+          seconds
+      );
+    }, 1000);
+
+    // Arrêter l'animation si l'utilisateur quitte la page
+    $(window).on("beforeunload", function () {
+      clearInterval(timerDemo);
+    });
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Task Manager{% endblock %}</title>
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Bootstrap Icons -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css"
+      rel="stylesheet"
+    />
+    <!-- Font Awesome -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        --primary-color: #4f46e5;
+        --secondary-color: #6366f1;
+        --success-color: #10b981;
+        --danger-color: #ef4444;
+        --warning-color: #f59e0b;
+        --info-color: #3b82f6;
+        --dark-color: #1f2937;
+        --light-color: #f9fafb;
+      }
+
+      body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      .navbar-brand {
+        font-weight: 700;
+        font-size: 1.5rem;
+      }
+
+      .navbar {
+        backdrop-filter: blur(10px);
+        background: rgba(255, 255, 255, 0.1) !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .navbar-nav .nav-link {
+        color: white !important;
+        font-weight: 500;
+        transition: all 0.3s ease;
+      }
+
+      .navbar-nav .nav-link:hover {
+        color: #fbbf24 !important;
+        transform: translateY(-2px);
+      }
+
+      .container-main {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        margin-top: 2rem;
+        margin-bottom: 2rem;
+        min-height: 80vh;
+      }
+
+      .card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(10px);
+      }
+
+      .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      }
+
+      .btn {
+        border-radius: 25px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        border: none;
+        padding: 0.75rem 1.5rem;
+      }
+
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      }
+
+      .btn-primary {
+        background: linear-gradient(
+          45deg,
+          var(--primary-color),
+          var(--secondary-color)
+        );
+      }
+
+      .btn-success {
+        background: linear-gradient(45deg, #10b981, #059669);
+      }
+
+      .btn-danger {
+        background: linear-gradient(45deg, #ef4444, #dc2626);
+      }
+
+      .btn-warning {
+        background: linear-gradient(45deg, #f59e0b, #d97706);
+      }
+
+      .btn-info {
+        background: linear-gradient(45deg, #3b82f6, #2563eb);
+      }
+
+      .alert {
+        border: none;
+        border-radius: 15px;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .form-control,
+      .form-select {
+        border-radius: 15px;
+        border: 2px solid #e5e7eb;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.9);
+      }
+
+      .form-control:focus,
+      .form-select:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.25rem rgba(79, 70, 229, 0.25);
+      }
+
+      .stats-card {
+        background: linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0.9),
+          rgba(255, 255, 255, 0.7)
+        );
+        backdrop-filter: blur(15px);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        transition: all 0.3s ease;
+      }
+
+      .stats-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      }
+
+      .task-card {
+        transition: all 0.3s ease;
+        border-left: 5px solid transparent;
+      }
+
+      .task-card.priority-high {
+        border-left-color: var(--danger-color);
+      }
+
+      .task-card.priority-medium {
+        border-left-color: var(--warning-color);
+      }
+
+      .task-card.priority-low {
+        border-left-color: var(--success-color);
+      }
+
+      .task-card.completed {
+        opacity: 0.7;
+        background: rgba(16, 185, 129, 0.1);
+      }
+
+      .task-card.overdue {
+        background: rgba(239, 68, 68, 0.1);
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.8;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+
+      .progress {
+        height: 8px;
+        border-radius: 10px;
+        overflow: visible;
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      .progress-bar {
+        border-radius: 10px;
+        transition: width 0.6s ease;
+      }
+
+      .badge {
+        border-radius: 25px;
+        padding: 0.5rem 1rem;
+        font-weight: 500;
+      }
+
+      .pomodoro-timer {
+        background: linear-gradient(135deg, #ff6b6b, #ffa500);
+        color: white;
+        text-align: center;
+        padding: 2rem;
+        border-radius: 20px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      }
+
+      .timer-display {
+        font-size: 4rem;
+        font-weight: 700;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .loading {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: white;
+        animation: spin 1s ease-in-out infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .footer {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        text-align: center;
+        padding: 1rem 0;
+        margin-top: auto;
+      }
+
+      @media (max-width: 768px) {
+        .container-main {
+          margin: 1rem;
+          border-radius: 15px;
+        }
+
+        .timer-display {
+          font-size: 2.5rem;
+        }
+
+        .btn {
+          padding: 0.5rem 1rem;
+        }
+      }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+  </head>
+  <body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+      <div class="container">
+        <a class="navbar-brand" href="{{ url_for('index') }}">
+          <i class="fas fa-tasks me-2"></i>
+          Task Manager
+        </a>
+
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+          {% if current_user.is_authenticated %}
+          <ul class="navbar-nav me-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('dashboard') }}">
+                <i class="fas fa-tachometer-alt me-1"></i>
+                Tableau de bord
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('add_task') }}">
+                <i class="fas fa-plus me-1"></i>
+                Nouvelle tâche
+              </a>
+            </li>
+            {% if current_user.is_admin %}
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                role="button"
+                data-bs-toggle="dropdown"
+              >
+                <i class="fas fa-cog me-1"></i>
+                Administration
+              </a>
+              <ul class="dropdown-menu">
+                <li>
+                  <a
+                    class="dropdown-item"
+                    href="{{ url_for('admin_dashboard') }}"
+                    >Tableau de bord admin</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="{{ url_for('admin_users') }}"
+                    >Gestion utilisateurs</a
+                  >
+                </li>
+              </ul>
+            </li>
+            {% endif %}
+          </ul>
+
+          <ul class="navbar-nav">
+            {% if user_stats %}
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                role="button"
+                data-bs-toggle="dropdown"
+              >
+                <i class="fas fa-chart-bar me-1"></i>
+                Statistiques
+              </a>
+              <div
+                class="dropdown-menu dropdown-menu-end p-3"
+                style="min-width: 250px"
+              >
+                <div class="row text-center">
+                  <div class="col-6">
+                    <div class="text-primary">
+                      <i class="fas fa-tasks fa-2x"></i>
+                      <div class="fw-bold">{{ user_stats.total }}</div>
+                      <small>Total</small>
+                    </div>
+                  </div>
+                  <div class="col-6">
+                    <div class="text-success">
+                      <i class="fas fa-check-circle fa-2x"></i>
+                      <div class="fw-bold">{{ user_stats.completed }}</div>
+                      <small>Complétées</small>
+                    </div>
+                  </div>
+                  <div class="col-6 mt-3">
+                    <div class="text-warning">
+                      <i class="fas fa-clock fa-2x"></i>
+                      <div class="fw-bold">{{ user_stats.pending }}</div>
+                      <small>En cours</small>
+                    </div>
+                  </div>
+                  <div class="col-6 mt-3">
+                    <div class="text-danger">
+                      <i class="fas fa-exclamation-triangle fa-2x"></i>
+                      <div class="fw-bold">{{ user_stats.high_priority }}</div>
+                      <small>Priorité haute</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </li>
+            {% endif %}
+
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                role="button"
+                data-bs-toggle="dropdown"
+              >
+                <i class="fas fa-user-circle me-1"></i>
+                {{ current_user.username }}
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li>
+                  <a class="dropdown-item" href="{{ url_for('profile') }}">
+                    <i class="fas fa-user me-2"></i>Profil
+                  </a>
+                </li>
+                <li><hr class="dropdown-divider" /></li>
+                <li>
+                  <a class="dropdown-item" href="{{ url_for('logout') }}">
+                    <i class="fas fa-sign-out-alt me-2"></i>Déconnexion
+                  </a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+          {% else %}
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('login') }}">
+                <i class="fas fa-sign-in-alt me-1"></i>
+                Connexion
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('register') }}">
+                <i class="fas fa-user-plus me-1"></i>
+                Inscription
+              </a>
+            </li>
+          </ul>
+          {% endif %}
+        </div>
+      </div>
+    </nav>
+
+    <!-- Messages Flash -->
+    <div class="container mt-3">
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %}
+      <div class="flash-messages">
+        {% for category, message in messages %}
+        <div
+          class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show"
+          role="alert"
+        >
+          <i
+            class="fas fa-{{ 'exclamation-triangle' if category == 'danger' or category == 'error' else 'check-circle' if category == 'success' else 'info-circle' }} me-2"
+          ></i>
+          {{ message }}
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="alert"
+          ></button>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %} {% endwith %}
+    </div>
+
+    <!-- Contenu principal -->
+    <div class="container">
+      <div class="container-main p-4">{% block content %}{% endblock %}</div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <p class="mb-0">
+          <i class="fas fa-heart text-danger"></i>
+          Task Manager - Gestionnaire de tâches avec technique Pomodoro
+          <i class="fas fa-heart text-danger"></i>
+        </p>
+        <small class="text-white-50">
+          © {{ moment().format('YYYY') }} - Développé avec Flask et Bootstrap
+        </small>
+      </div>
+    </footer>
+
+    <!-- Scripts -->
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+    <script>
+      // Utilitaires JavaScript globaux
+
+      // Auto-dismiss des alertes après 5 secondes
+      $(document).ready(function () {
+        $(".alert").each(function () {
+          let alert = $(this);
+          setTimeout(function () {
+            alert.fadeOut("slow");
+          }, 5000);
+        });
+      });
+
+      // Animation pour les cartes
+      function animateCard(element) {
+        $(element).addClass("animate__animated animate__fadeInUp");
+      }
+
+      // Confirmation de suppression
+      function confirmDelete(
+        message = "Êtes-vous sûr de vouloir supprimer cet élément ?"
+      ) {
+        return confirm(message);
+      }
+
+      // Basculer le statut d'une tâche (AJAX)
+      function toggleTask(taskId) {
+        $.post(`/toggle_task/${taskId}`, function (data) {
+          if (data.completed) {
+            $(`#task-${taskId}`).addClass("completed");
+            $(`#task-${taskId} .task-status`).html(
+              '<i class="fas fa-check-circle text-success"></i> Complétée'
+            );
+          } else {
+            $(`#task-${taskId}`).removeClass("completed");
+            $(`#task-${taskId} .task-status`).html(
+              '<i class="fas fa-clock text-warning"></i> En cours'
+            );
+          }
+
+          // Afficher le message
+          showNotification(data.message, "success");
+
+          // Recharger les statistiques
+          updateStats();
+        }).fail(function () {
+          showNotification("Erreur lors de la mise à jour", "danger");
+        });
+      }
+
+      // Afficher une notification toast
+      function showNotification(message, type = "info") {
+        const toast = `
+                <div class="toast align-items-center text-white bg-${type} border-0 position-fixed" 
+                     style="top: 20px; right: 20px; z-index: 9999;" role="alert">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            <i class="fas fa-${
+                              type === "success"
+                                ? "check"
+                                : type === "danger"
+                                ? "exclamation-triangle"
+                                : "info"
+                            }-circle me-2"></i>
+                            ${message}
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                    </div>
+                </div>
+            `;
+
+        $("body").append(toast);
+        const toastEl = $(".toast").last();
+        const bsToast = new bootstrap.Toast(toastEl[0]);
+        bsToast.show();
+
+        // Supprimer l'élément après fermeture
+        toastEl.on("hidden.bs.toast", function () {
+          $(this).remove();
+        });
+      }
+
+      // Mettre à jour les statistiques
+      function updateStats() {
+        $.get("/api/stats", function (data) {
+          // Mettre à jour les badges dans la navbar si présents
+          updateStatsBadges(data);
+        });
+      }
+
+      function updateStatsBadges(stats) {
+        // Cette fonction peut être surchargée dans les pages spécifiques
+      }
+
+      // Formatage des dates
+      function formatDate(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleDateString("fr-FR", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      }
+
+      // Loading spinner
+      function showLoading(element) {
+        $(element).html('<span class="loading"></span>');
+      }
+
+      function hideLoading(element, originalContent) {
+        $(element).html(originalContent);
+      }
+
+      // Validation côté client
+      function validateForm(formId) {
+        const form = document.getElementById(formId);
+        if (form.checkValidity() === false) {
+          form.classList.add("was-validated");
+          return false;
+        }
+        return true;
+      }
+
+      // Recherche en temps réel
+      function setupLiveSearch(inputId, targetClass, searchFields) {
+        $(`#${inputId}`).on("keyup", function () {
+          const searchTerm = $(this).val().toLowerCase();
+
+          $(`.${targetClass}`).each(function () {
+            const item = $(this);
+            let found = false;
+
+            searchFields.forEach((field) => {
+              const fieldValue = item.find(`.${field}`).text().toLowerCase();
+              if (fieldValue.includes(searchTerm)) {
+                found = true;
+              }
+            });
+
+            if (found || searchTerm === "") {
+              item.show();
+            } else {
+              item.hide();
+            }
+          });
+        });
+      }
+    </script>
+
+    {% block extra_js %}{% endblock %}
+  </body>
+</html>
